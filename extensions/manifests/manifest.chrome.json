@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "VietTTS — Vietnamese Text to Speech",
+  "version": "1.0.0",
+  "description": "Đọc văn bản tiếng Việt bằng Web Speech API, phát triển bởi Long Ngo.",
+  "author": "Long Ngo",
+  "homepage_url": "https://github.com/Vietflexmap/VietTTS",
+  "minimum_chrome_version": "88",
+  "permissions": ["activeTab", "scripting", "contextMenus", "storage"],
+  "background": {"service_worker": "background.js"},
+  "action": {"default_popup": "popup.html", "default_title": "VietTTS"},
+  "commands": {
+    "read-selection": {"suggested_key": {"default": "Ctrl+Shift+S", "mac": "Command+Shift+S"}, "description": "Đọc phần văn bản đã chọn"},
+    "read-page": {"suggested_key": {"default": "Ctrl+Shift+P", "mac": "Command+Shift+P"}, "description": "Đọc nội dung chính của trang"},
+    "toggle-playback": {"suggested_key": {"default": "Ctrl+Shift+Space", "mac": "Command+Shift+Space"}, "description": "Tạm dừng hoặc tiếp tục"},
+    "stop-playback": {"description": "Dừng đọc"}
+  }
+}
