@@ -1,4 +1,5 @@
 const api = globalThis.browser || globalThis.chrome;
+const usesPromiseApi = typeof globalThis.browser !== "undefined" && globalThis.browser !== globalThis.chrome;
 
 const MENUS = [
   { id: "viettts-selection", title: "VietTTS: Đọc phần đã chọn", contexts: ["selection"] },
@@ -7,17 +8,20 @@ const MENUS = [
 ];
 
 function call(method, context, ...args) {
+  if (usesPromiseApi) {
+    try {
+      return Promise.resolve(method.apply(context, args));
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
   return new Promise((resolve, reject) => {
-    let settled = false;
     const callback = (result) => {
-      settled = true;
       const error = globalThis.chrome?.runtime?.lastError;
       error ? reject(new Error(error.message)) : resolve(result);
     };
     try {
-      const result = method.apply(context, [...args, callback]);
-      if (result && typeof result.then === "function") result.then(resolve, reject);
-      else if (method.length < args.length + 1 && !settled) resolve(result);
+      method.apply(context, [...args, callback]);
     } catch (error) { reject(error); }
   });
 }
@@ -31,8 +35,16 @@ async function inject(tabId) {
 }
 
 async function send(tabId, message) {
-  try { return await call(api.tabs.sendMessage, api.tabs, tabId, message); }
-  catch (_) { await inject(tabId); return call(api.tabs.sendMessage, api.tabs, tabId, message); }
+  let response;
+  try {
+    response = await call(api.tabs.sendMessage, api.tabs, tabId, message);
+  } catch (_) {
+    await inject(tabId);
+    response = await call(api.tabs.sendMessage, api.tabs, tabId, message);
+  }
+  if (!response) throw new Error("Content script không trả lời. Hãy tải lại trang và thử lại.");
+  if (response.ok === false) throw new Error(response.error || "Không thể phát giọng nói.");
+  return response.result;
 }
 
 async function currentTab() {
@@ -43,12 +55,14 @@ async function currentTab() {
 async function perform(action, tabId, extra) {
   const id = tabId || (await currentTab())?.id;
   if (!id) throw new Error("Không tìm thấy tab đang hoạt động.");
-  const settings = await call(api.storage.local.get, api.storage.local, ["rate", "pitch", "voice"]);
+  const settings = await call(api.storage.local.get, api.storage.local, ["rate", "pitch", "voice", "mode"]);
   return send(id, { type: "VIETTTS_ACTION", action, options: Object.assign({}, settings, extra || {}) });
 }
 
 api.runtime.onInstalled.addListener(() => {
-  api.contextMenus.removeAll(() => MENUS.forEach((menu) => api.contextMenus.create(menu)));
+  call(api.contextMenus.removeAll, api.contextMenus)
+    .then(() => MENUS.forEach((menu) => api.contextMenus.create(menu)))
+    .catch(console.error);
 });
 
 api.contextMenus.onClicked.addListener((info, tab) => {

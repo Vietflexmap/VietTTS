@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "VietTTS — Vietnamese Text to Speech",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Đọc văn bản tiếng Việt bằng Web Speech API, phát triển bởi Long Ngo.",
   "author": "Long Ngo",
   "homepage_url": "https://github.com/Vietflexmap/VietTTS",

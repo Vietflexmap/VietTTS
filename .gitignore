@@ -1,0 +1,4 @@
+build/
+.npm-cache/
+.npm-cache-webext/
+*.zip
