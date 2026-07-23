@@ -32,4 +32,15 @@ if (background.includes("method.length < args.length + 1")) {
   throw new Error("Premature callback resolution regression detected.");
 }
 
+const tool = await readFile(
+  join(root, "examples", "VietTTS-jsDelivr-Tool-1.2.0.html"),
+  "utf8"
+);
+const cdnUrl = "https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@main/dist/viettts.min.js";
+if (!tool.includes(cdnUrl)) throw new Error("HTML tool does not use the canonical jsDelivr URL.");
+const inlineScripts = [...tool.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+if (inlineScripts.length !== 1) throw new Error("HTML tool must contain exactly one inline application script.");
+new Function(inlineScripts[0][1]);
+if (!tool.includes("VietTTS.speak(text")) throw new Error("HTML tool does not call VietTTS.speak directly.");
+
 console.log(`Checks passed. Shared core SHA-256: ${canonicalHash}`);
