@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>VietTTS 1.1.0 – Chrome, Firefox, Edge</title>
+  <title>VietTTS 1.2.0 – Chrome, Firefox, Edge</title>
   <script src="https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@main/dist/viettts.min.js"></script>
   <style>
     body{max-width:760px;margin:40px auto;padding:0 16px;font-family:system-ui,sans-serif;color:#172033}
@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <h1>🇻🇳 VietTTS 1.1.0</h1>
+  <h1>🇻🇳 VietTTS 1.2.0</h1>
   <p>Không chờ tải voice bên trong sự kiện click. Voice được nạp nền; nút đọc gọi <code>VietTTS.speak()</code> trực tiếp.</p>
 
   <label for="text">Nội dung tiếng Việt</label>
@@ -21,6 +21,12 @@
 
   <label for="voice">Giọng vi-VN</label>
   <select id="voice"><option value="">Tự động theo vi-VN</option></select>
+
+  <label for="mode">Chế độ</label>
+  <select id="mode">
+    <option value="system">Giọng hệ thống (mặc định)</option>
+    <option value="microsoft">Microsoft Voice (bật thủ công)</option>
+  </select>
 
   <div>
     <button id="speak" class="speak">🔊 Đọc tiếng Việt</button>
@@ -39,7 +45,7 @@
 
     async function refreshVoices() {
       await VietTTS.loadVoices(2500);
-      const voices = VietTTS.getVoices({ lang: "vi" });
+      const voices = VietTTS.getVoices({ lang: "vi", mode: $("mode").value });
       $("voice").innerHTML = '<option value="">Tự động theo vi-VN</option>';
       for (const voice of voices) {
         const option = document.createElement("option");
@@ -61,6 +67,7 @@
       VietTTS.speak($("text").value, {
         lang: "vi-VN",
         voice: $("voice").value,
+        mode: $("mode").value,
         rate: 1,
         pitch: 1,
         volume: 1,
@@ -79,6 +86,7 @@
     $("pause").onclick = () => VietTTS.pause();
     $("resume").onclick = () => VietTTS.resume();
     $("stop").onclick = () => VietTTS.cancel();
+    $("mode").addEventListener("change", refreshVoices);
 
     document.addEventListener("viettts:warning", (event) => {
       $("status").textContent = event.detail.message;

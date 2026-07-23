@@ -7,8 +7,13 @@
     if (message?.type !== "VIETTTS_ACTION") return false;
     const options = Object.assign({ lang: "vi-VN" }, message.options || {});
     let task;
-    if (message.action === "selection") task = VietTTS.readSelection(options);
-    else if (message.action === "page") task = VietTTS.readPage(options);
+    if (message.action === "selection") {
+      const text = typeof globalThis.getSelection === "function" ? String(globalThis.getSelection() || "") : "";
+      task = VietTTS.speakWhenReady(text, options);
+    }
+    else if (message.action === "page") {
+      task = VietTTS.speakWhenReady(VietTTS.readablePageText(options.selector), options);
+    }
     else if (message.action === "toggle") task = Promise.resolve({ toggled: VietTTS.toggle() });
     else if (message.action === "stop") task = Promise.resolve({ stopped: VietTTS.cancel() });
     else task = Promise.reject(new Error("Hành động không hợp lệ."));

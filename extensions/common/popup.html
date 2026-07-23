@@ -1,1 +1,32 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="popup.css"><title>VietTTS</title></head><body><main><h1>🇻🇳 VietTTS</h1><p class="by">© 2026 Long Ngo · MIT</p><label>Tốc độ <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1"><output id="rateOut">1.0</output></label><label>Cao độ <input id="pitch" type="range" min="0" max="2" step="0.1" value="1"><output id="pitchOut">1.0</output></label><div class="grid"><button data-action="selection" class="primary">Đọc phần chọn</button><button data-action="page">Đọc trang</button><button data-action="toggle">Tạm dừng / tiếp tục</button><button data-action="stop">Dừng</button></div><p id="status" role="status"></p></main><script src="popup.js"></script></body></html>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="popup.css">
+  <title>VietTTS</title>
+</head>
+<body>
+  <main>
+    <h1>🇻🇳 VietTTS</h1>
+    <p class="by">© 2026 Long Ngo · MIT</p>
+    <label>
+      Chế độ giọng
+      <select id="mode">
+        <option value="system">Giọng hệ thống (mặc định)</option>
+        <option value="microsoft">Microsoft Voice (bật thủ công)</option>
+      </select>
+    </label>
+    <label>Tốc độ <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1"><output id="rateOut">1.0</output></label>
+    <label>Cao độ <input id="pitch" type="range" min="0" max="2" step="0.1" value="1"><output id="pitchOut">1.0</output></label>
+    <div class="grid">
+      <button data-action="selection" class="primary">Đọc phần chọn</button>
+      <button data-action="page">Đọc trang</button>
+      <button data-action="toggle">Tạm dừng / tiếp tục</button>
+      <button data-action="stop">Dừng</button>
+    </div>
+    <p id="status" role="status">Đang dùng giọng hệ thống tiếng Việt.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

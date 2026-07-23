@@ -13,6 +13,7 @@ Mã nguồn mở MIT, phát triển bởi **Long Ngo**.
 
 - SDK JavaScript nhúng bằng **jsDelivr**, không cần framework.
 - Dùng Web Speech API chuẩn, ưu tiên giọng `vi-VN` có trên thiết bị.
+- **Giọng hệ thống** là chế độ mặc định; **Microsoft Voice** chỉ được dùng sau khi bật rõ ràng.
 - Đọc văn bản, vùng được chọn hoặc nội dung chính của trang.
 - Điều chỉnh tốc độ, cao độ, âm lượng và tên giọng.
 - Web Component `<viet-tts-button>` và API JavaScript `VietTTS.speak()`.
@@ -25,7 +26,7 @@ Mã nguồn mở MIT, phát triển bởi **Long Ngo**.
 Dùng phiên bản cố định trong môi trường thật:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@v1.0.0/dist/viettts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@main/dist/viettts.min.js"></script>
 <script>
   document.querySelector('#doc').addEventListener('click', () => {
     VietTTS.speak('Xin chào Việt Nam!', { lang: 'vi-VN', rate: 1 });
@@ -36,7 +37,7 @@ Dùng phiên bản cố định trong môi trường thật:
 Hoặc dùng Web Component:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@v1.0.0/dist/viettts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@main/dist/viettts.min.js"></script>
 
 <p id="noi-dung">Đây là văn bản tiếng Việt cần được đọc.</p>
 <viet-tts-button target="#noi-dung" label="🔊 Đọc nội dung"></viet-tts-button>
@@ -44,13 +45,14 @@ Hoặc dùng Web Component:
 <script>VietTTS.defineElement();</script>
 ```
 
-> Không dùng `@main` cho hệ thống sản xuất. jsDelivr lưu cache branch; tag SemVer như `@v1.0.0` giúp bản nhúng bất biến và dễ kiểm soát.
+> URL `@main` luôn theo nhánh chính như yêu cầu của dự án. Với hệ thống sản xuất cần tính bất biến, nên thay `@main` bằng tag hoặc commit SHA sau khi phát hành.
 
 ## API
 
 ```js
 await VietTTS.speak('Nội dung cần đọc', {
   lang: 'vi-VN',
+  mode: 'system',  // mặc định; không ép Microsoft Voice
   voice: '',       // tên voice; để trống sẽ tự chọn voice tiếng Việt tốt nhất
   rate: 1,         // 0.1–10
   pitch: 1,        // 0–2
@@ -58,12 +60,19 @@ await VietTTS.speak('Nội dung cần đọc', {
   maxChunkLength: 220
 });
 
+// Chỉ kích hoạt Microsoft Voice sau thao tác rõ ràng của người dùng.
+await VietTTS.speak('Xin chào Việt Nam', {
+  lang: 'vi-VN',
+  mode: 'microsoft'
+});
+
 VietTTS.pause();
 VietTTS.resume();
 VietTTS.cancel();
 VietTTS.readSelection();
 VietTTS.readPage({ selector: 'article' });
-console.table(VietTTS.getVoices({ lang: 'vi' }));
+console.table(VietTTS.getVoices({ lang: 'vi', mode: 'system' }));
+console.table(VietTTS.getVoices({ lang: 'vi', mode: 'microsoft' }));
 ```
 
 Gắn vào nút HTML có sẵn:
@@ -118,9 +127,7 @@ npm run check
 Kết quả:
 
 ```text
-dist/viettts.js
 dist/viettts.min.js
-dist/viettts.esm.js
 build/chrome/
 build/firefox/
 build/edge/
@@ -130,11 +137,11 @@ build/edge/
 
 `speechSynthesis` có mặt trên Chrome, Firefox và Edge hiện đại. Tuy nhiên, **danh sách giọng phụ thuộc trình duyệt và hệ điều hành**. Trên Windows 10, hãy cài gói giọng nói tiếng Việt trong phần Language/Speech nếu `VietTTS.getVoices({lang:'vi'})` trả về danh sách rỗng.
 
-SDK CDN chỉ phân phối JavaScript. Nó không thể tự cài voice hệ thống và không thể bảo đảm cùng một giọng trên mọi thiết bị.
+SDK CDN chỉ phân phối JavaScript. Nó không thể tự cài voice hệ thống và không thể bảo đảm cùng một giọng trên mọi thiết bị. Chế độ `microsoft` chỉ chọn voice tiếng Việt có tên hoặc `voiceURI` thuộc Microsoft; nếu không có, SDK trả lỗi `VIETTTS_MICROSOFT_VOICE_MISSING` thay vì âm thầm đổi sang giọng khác.
 
 ## Quy tắc bảo mật
 
-- Bản extension chỉ thực thi mã đóng gói cục bộ; không tải mã thực thi từ CDN.
+- Bản extension chỉ thực thi mã đóng gói cục bộ; không tải mã thực thi từ CDN. `npm run build` sao chép nguyên byte `dist/viettts.min.js` vào cả ba gói và `npm run check` xác minh checksum giống nhau.
 - Quyền tối thiểu: `activeTab`, `scripting`, `contextMenus`, `storage`.
 - Không có host permission thường trực trên mọi website.
 - Nội dung được chuyển cho engine TTS do trình duyệt/hệ điều hành cung cấp. Kiểm tra chính sách của voice đang sử dụng nếu đó là voice trực tuyến.
