@@ -13,7 +13,7 @@
   "main": "dist/viettts.min.js",
   "browser": "dist/viettts.min.js",
   "jsdelivr": "dist/viettts.min.js",
-  "files": ["dist", "extensions", "LICENSE", "README.md"],
+  "files": ["dist", "extensions", "examples", "LICENSE", "NOTICE.md", "README.md"],
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "node scripts/check.mjs",

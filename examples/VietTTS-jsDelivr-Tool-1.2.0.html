@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Công cụ đọc văn bản tiếng Việt bằng VietTTS qua CDN jsDelivr.">
+
+  <title>VietTTS – Đọc tiếng Việt</title>
+
+  <!-- VietTTS SDK -->
+  <script src="https://cdn.jsdelivr.net/gh/Vietflexmap/VietTTS@main/dist/viettts.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f5f7fb;
+      color: #172033;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .tts-app {
+      width: min(760px, 100%);
+      margin: 30px auto;
+      padding: 24px;
+      background: #fff;
+      border: 1px solid #dce3ec;
+      border-radius: 18px;
+      box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #b91c1c;
+      font-size: 28px;
+    }
+
+    .description {
+      margin-bottom: 20px;
+      color: #5b6474;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-weight: 700;
+    }
+
+    textarea,
+    select,
+    input[type="range"] {
+      width: 100%;
+    }
+
+    textarea,
+    select {
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+      color: #172033;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: #b91c1c;
+      outline: 3px solid rgba(185, 28, 28, 0.13);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .range-value {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    .text-meta {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    button {
+      padding: 11px 17px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    button:hover {
+      filter: brightness(1.06);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .primary {
+      background: #b91c1c;
+      color: #fff;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #172033;
+    }
+
+    .stop {
+      background: #111827;
+      color: #fff;
+    }
+
+    #status {
+      min-height: 24px;
+      margin-top: 18px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 9px;
+      color: #475569;
+    }
+
+    footer {
+      margin-top: 22px;
+      padding-top: 15px;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      .tts-app {
+        padding: 18px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .buttons button {
+        flex: 1 1 45%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="tts-app">
+    <h1>🇻🇳 VietTTS</h1>
+
+    <p class="description">
+      Nhập nội dung tiếng Việt, lựa chọn giọng đọc và điều chỉnh các thông số
+      trước khi phát âm thanh.
+    </p>
+
+    <label for="ttsText">Nội dung cần đọc</label>
+
+    <textarea id="ttsText" maxlength="20000">Xin chào Việt Nam! Đây là công cụ đọc văn bản tiếng Việt được phát triển bởi Long Ngo.</textarea>
+    <div id="textCount" class="text-meta">0 / 20.000 ký tự</div>
+
+    <label for="voiceSelect">Giọng tiếng Việt</label>
+
+    <select id="voiceSelect">
+      <option value="">Đang tải danh sách giọng...</option>
+    </select>
+
+    <section class="controls">
+      <div>
+        <label for="rate">
+          Tốc độ:
+          <span id="rateValue" class="range-value">1.0</span>
+        </label>
+
+        <input
+          id="rate"
+          type="range"
+          min="0.5"
+          max="2"
+          step="0.1"
+          value="1"
+        >
+      </div>
+
+      <div>
+        <label for="pitch">
+          Cao độ:
+          <span id="pitchValue" class="range-value">1.0</span>
+        </label>
+
+        <input
+          id="pitch"
+          type="range"
+          min="0"
+          max="2"
+          step="0.1"
+          value="1"
+        >
+      </div>
+
+      <div>
+        <label for="volume">
+          Âm lượng:
+          <span id="volumeValue" class="range-value">1.0</span>
+        </label>
+
+        <input
+          id="volume"
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          value="1"
+        >
+      </div>
+    </section>
+
+    <div class="buttons">
+      <button id="speakButton" class="primary" type="button">
+        🔊 Đọc tiếng Việt
+      </button>
+
+      <button id="pauseButton" class="secondary" type="button">
+        ⏸ Tạm dừng
+      </button>
+
+      <button id="resumeButton" class="secondary" type="button">
+        ▶ Tiếp tục
+      </button>
+
+      <button id="stopButton" class="stop" type="button">
+        ⏹ Dừng
+      </button>
+
+      <button id="clearButton" class="secondary" type="button">
+        Xóa nội dung
+      </button>
+    </div>
+
+    <div id="status" role="status" aria-live="polite">
+      Đang khởi tạo VietTTS...
+    </div>
+
+    <footer>
+      VietTTS <span id="sdkVersion"></span> · MIT License · © 2026 Long Ngo
+    </footer>
+  </main>
+
+  <script>
+    const textElement = document.getElementById("ttsText");
+    const textCount = document.getElementById("textCount");
+    const voiceSelect = document.getElementById("voiceSelect");
+    const statusElement = document.getElementById("status");
+
+    const rateElement = document.getElementById("rate");
+    const pitchElement = document.getElementById("pitch");
+    const volumeElement = document.getElementById("volume");
+
+    const rateValue = document.getElementById("rateValue");
+    const pitchValue = document.getElementById("pitchValue");
+    const volumeValue = document.getElementById("volumeValue");
+
+    const speakButton = document.getElementById("speakButton");
+    const pauseButton = document.getElementById("pauseButton");
+    const resumeButton = document.getElementById("resumeButton");
+    const stopButton = document.getElementById("stopButton");
+    const clearButton = document.getElementById("clearButton");
+
+    let loadingVoices = false;
+
+    function updateTextCount() {
+      textCount.textContent =
+        `${textElement.value.length.toLocaleString("vi-VN")} / 20.000 ký tự`;
+    }
+
+    function setPlaybackButtons(enabled) {
+      pauseButton.disabled = !enabled;
+      resumeButton.disabled = !enabled;
+      stopButton.disabled = !enabled;
+    }
+
+    function updateRangeValues() {
+      rateValue.textContent = Number(rateElement.value).toFixed(1);
+      pitchValue.textContent = Number(pitchElement.value).toFixed(1);
+      volumeValue.textContent = Number(volumeElement.value).toFixed(1);
+    }
+
+    async function loadVietnameseVoices() {
+      if (loadingVoices) return;
+
+      if (!window.VietTTS) {
+        statusElement.textContent =
+          "Không tải được VietTTS từ CDN. Hãy kiểm tra kết nối Internet.";
+
+        speakButton.disabled = true;
+        setPlaybackButtons(false);
+        return;
+      }
+
+      if (!VietTTS.supported()) {
+        statusElement.textContent =
+          "Trình duyệt này không hỗ trợ Web Speech API.";
+
+        speakButton.disabled = true;
+        setPlaybackButtons(false);
+        return;
+      }
+
+      loadingVoices = true;
+
+      try {
+        const selectedVoice = voiceSelect.value;
+
+        await VietTTS.loadVoices(2500);
+
+        const voices = VietTTS.getVoices({
+          lang: "vi"
+        });
+
+        voiceSelect.innerHTML = "";
+
+        const automaticOption = document.createElement("option");
+        automaticOption.value = "";
+        automaticOption.textContent =
+          "Tự động chọn giọng tiếng Việt tốt nhất";
+
+        voiceSelect.appendChild(automaticOption);
+
+        voices.forEach((voice) => {
+          const option = document.createElement("option");
+
+          option.value = voice.name;
+          option.textContent =
+            `${voice.name} — ${voice.lang}` +
+            (voice.localService ? " · cục bộ" : " · trực tuyến");
+
+          voiceSelect.appendChild(option);
+        });
+
+        if ([...voiceSelect.options].some((option) => option.value === selectedVoice)) {
+          voiceSelect.value = selectedVoice;
+        }
+
+        if (voices.length === 0) {
+          statusElement.textContent =
+            "Không tìm thấy voice vi-VN. VietTTS sẽ thử dùng voice mặc định của hệ thống.";
+        } else {
+          statusElement.textContent =
+            `Đã tìm thấy ${voices.length} giọng tiếng Việt.`;
+        }
+      } catch (error) {
+        console.error(error);
+
+        statusElement.textContent =
+          `Không thể tải danh sách giọng đọc: ${error.message}`;
+      } finally {
+        loadingVoices = false;
+      }
+    }
+
+    async function speakVietnamese() {
+      const text = textElement.value.trim();
+
+      if (!text) {
+        statusElement.textContent =
+          "Vui lòng nhập nội dung cần đọc.";
+
+        textElement.focus();
+        return;
+      }
+
+      speakButton.disabled = true;
+      setPlaybackButtons(true);
+      statusElement.textContent = "Đang đọc nội dung...";
+
+      try {
+        const result = await VietTTS.speak(text, {
+          lang: "vi-VN",
+          voice: voiceSelect.value,
+          rate: Number(rateElement.value),
+          pitch: Number(pitchElement.value),
+          volume: Number(volumeElement.value),
+          maxChunkLength: 220
+        });
+
+        const voiceName =
+          result.voice && result.voice.name
+            ? result.voice.name
+            : "voice mặc định";
+
+        statusElement.textContent =
+          `Đã đọc xong bằng ${voiceName}.`;
+      } catch (error) {
+        console.error(error);
+
+        if (error.code === "VIETTTS_EMPTY_TEXT") {
+          statusElement.textContent =
+            "Không có nội dung để đọc.";
+        } else if (error.code === "VIETTTS_UNSUPPORTED") {
+          statusElement.textContent =
+            "Trình duyệt không hỗ trợ chức năng đọc văn bản.";
+        } else {
+          statusElement.textContent =
+            `Lỗi TTS: ${error.message}`;
+        }
+      } finally {
+        speakButton.disabled = false;
+        setPlaybackButtons(false);
+      }
+    }
+
+    rateElement.addEventListener("input", updateRangeValues);
+    pitchElement.addEventListener("input", updateRangeValues);
+    volumeElement.addEventListener("input", updateRangeValues);
+    textElement.addEventListener("input", updateTextCount);
+
+    speakButton.addEventListener("click", speakVietnamese);
+
+    pauseButton.addEventListener("click", () => {
+      VietTTS.pause();
+      statusElement.textContent = "Đã tạm dừng.";
+    });
+
+    resumeButton.addEventListener("click", () => {
+      VietTTS.resume();
+      statusElement.textContent = "Đang tiếp tục đọc...";
+    });
+
+    stopButton.addEventListener("click", () => {
+      VietTTS.cancel();
+      speakButton.disabled = false;
+      setPlaybackButtons(false);
+      statusElement.textContent = "Đã dừng đọc.";
+    });
+
+    clearButton.addEventListener("click", () => {
+      if (window.VietTTS) VietTTS.cancel();
+      textElement.value = "";
+      speakButton.disabled = false;
+      setPlaybackButtons(false);
+      updateTextCount();
+      textElement.focus();
+      statusElement.textContent = "Đã xóa nội dung.";
+    });
+
+    document.addEventListener("viettts:start", (event) => {
+      const current = event.detail.chunkIndex + 1;
+      const total = event.detail.chunkCount;
+
+      statusElement.textContent =
+        `Đang đọc đoạn ${current}/${total}...`;
+    });
+
+    document.addEventListener("viettts:error", (event) => {
+      statusElement.textContent =
+        `Lỗi phát âm thanh: ${event.detail.error}`;
+    });
+
+    updateRangeValues();
+    updateTextCount();
+    setPlaybackButtons(false);
+
+    if (window.VietTTS) {
+      document.getElementById("sdkVersion").textContent =
+        `v${VietTTS.version || ""}`;
+    }
+
+    if (window.speechSynthesis &&
+        typeof window.speechSynthesis.addEventListener === "function") {
+      window.speechSynthesis.addEventListener(
+        "voiceschanged",
+        loadVietnameseVoices
+      );
+    }
+
+    loadVietnameseVoices();
+  </script>
+</body>
+</html>
