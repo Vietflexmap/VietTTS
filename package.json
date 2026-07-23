@@ -1,0 +1,25 @@
+{
+  "name": "viettts-web",
+  "version": "1.0.0",
+  "description": "Vietnamese Text-to-Speech SDK and browser extensions for Chrome, Firefox and Microsoft Edge.",
+  "author": "Long Ngo",
+  "license": "MIT",
+  "homepage": "https://github.com/Vietflexmap/VietTTS",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vietflexmap/VietTTS.git"
+  },
+  "keywords": ["tts", "vietnamese", "text-to-speech", "web-speech-api", "chrome-extension", "firefox-addon", "edge-extension"],
+  "main": "dist/viettts.js",
+  "browser": "dist/viettts.min.js",
+  "jsdelivr": "dist/viettts.min.js",
+  "module": "dist/viettts.esm.js",
+  "files": ["dist", "extensions", "LICENSE", "README.md"],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.cjs",
+    "prepare": "npm run build && npm test && npm run check"
+  },
+  "engines": {"node": ">=18"}
+}
